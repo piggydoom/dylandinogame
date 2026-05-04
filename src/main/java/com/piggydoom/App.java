@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.lang.ModuleLayer.Controller;
 
 /**
  * JavaFX App
@@ -17,10 +18,26 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480);
+        Parent root = loadFXML("primary");
+        scene = new Scene(root, 640, 480);
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("primary.fxml"));
+
+        // 2. Load the scene graph
+
+        // 3. Get the controller instance
+        Controller controller = loader.getController();
+
+        scene.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case SPACE:
+                    controller.jump();
+                    break;
+            }
+        });
     }
 
     static void setRoot(String fxml) throws IOException {

@@ -15,29 +15,39 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
 import javafx.scene.paint.Color;
 
 public class controller {
+    
     @FXML
-    public StackPane stackPane;
+    public Pane pane;
     @FXML
     public Canvas canvas;
+    @FXML
+    public ImageView dylanIV;
 
     Random random = new Random();
     GraphicsContext ctx;
     int groundHeight = 32;
     int gameSpeed = 50;
-    double dY = groundHeight;
+    double dY = 0;
     Image dylanImg = new Image(getClass().getResource("/com/piggydoom/assets/dylan.png").toExternalForm());
     double dImgW = dylanImg.getWidth() / 18;
     double dImgH = dylanImg.getHeight() / 18;
+    double v = 0;
 
     public void initialize() {
         ctx = canvas.getGraphicsContext2D();
-        canvas.heightProperty().bind(stackPane.heightProperty());
-        canvas.widthProperty().bind(stackPane.widthProperty());
+        
+        dylanIV.setImage(dylanImg);
+        dylanIV.setFitWidth(dImgW);
+        // StackPane.clearConstraints(dylanIV);
+        canvas.heightProperty().bind(pane.heightProperty());
+        canvas.widthProperty().bind(pane.widthProperty());
         timeline.setCycleCount(Animation.INDEFINITE);
         javafx.application.Platform.runLater(() -> {
             initGame();
@@ -73,17 +83,41 @@ public class controller {
     public void initGame() {
         ctx.setFill(Color.hsb(0, 0, 0.6));
         ctx.fillRect(0, canvas.getHeight() - groundHeight, canvas.getWidth(), groundHeight);
-        ctx.drawImage(dylanImg, 150, canvas.getHeight() - groundHeight - dImgH, dImgW, dImgH);
+        dylanIV.setX(150);
+        dylanIV.setY(canvas.getHeight() - groundHeight - dImgH);
+        dY = canvas.getHeight() - groundHeight;
         timeline.play();
     }
 
+    public void jump(){
+        if(dY >= canvas.getHeight() - groundHeight){
+            v+= 10;
+        }
+    }
     Timeline timeline = new Timeline(new KeyFrame(Duration.millis(gameSpeed), event -> {
-            if (random.nextInt(25) <= 1) {
-                
-                groundTexList.add(new groundTex(canvas.getWidth(), ThreadLocalRandom.current().nextDouble(5, 10), 10.0, 10.0));
+           
+            for(groundTex gt : groundTexList ){
+                ctx.setFill(Color.hsb(0, 0, 0.6));
+                ctx.fillRect(gt.x, gt.y - 1, gt.w + 1, gt.h + 2);
+                gt.x -= 10;
+                ctx.setFill(Color.WHITE);
+                ctx.fillRect(gt.x, gt.y, gt.w, gt.h);
             }
-            System.out.println(groundTexList);
 
+             if (random.nextInt(13) <= 1) {
+                
+                groundTexList.add(new groundTex(canvas.getWidth(),
+                 ThreadLocalRandom.current().nextDouble(canvas.getHeight() - groundHeight, canvas.getHeight() - 1),
+                  ThreadLocalRandom.current().nextDouble(6, 12),
+                    ThreadLocalRandom.current().nextDouble(4, 6)        
+                   ));
+            }
+            groundTexList.removeIf(gt -> gt.x + gt.w <= 0);
+
+            if(dY < canvas.getHeight() - groundHeight){
+                v += 3;
+                dylanIV.setTranslateY(v);  
+            }
         }));
 
 }
