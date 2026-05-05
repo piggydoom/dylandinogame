@@ -18,19 +18,14 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Parent root = loadFXML("primary");
+        FXMLLoader loader = new FXMLLoader(App.class.getResource("primary.fxml"));
+        Parent root = loader.load();
+        controller controller = loader.getController();
         scene = new Scene(root, 640, 480);
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
-
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("primary.fxml"));
-
-        // 2. Load the scene graph
-
-        // 3. Get the controller instance
-        Controller controller = loader.getController();
-
+        
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case SPACE:
@@ -38,15 +33,6 @@ public class App extends Application {
                     break;
             }
         });
-    }
-
-    static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadFXML(fxml));
-    }
-
-    private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
-        return fxmlLoader.load();
     }
 
     public static void main(String[] args) {

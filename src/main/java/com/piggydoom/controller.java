@@ -33,16 +33,16 @@ public class controller {
     Random random = new Random();
     GraphicsContext ctx;
     int groundHeight = 32;
-    int gameSpeed = 50;
+    int gameSpeed = 20;
     double dY = 0;
     Image dylanImg = new Image(getClass().getResource("/com/piggydoom/assets/dylan.png").toExternalForm());
     double dImgW = dylanImg.getWidth() / 18;
     double dImgH = dylanImg.getHeight() / 18;
     double v = 0;
+    double DGY;
 
     public void initialize() {
         ctx = canvas.getGraphicsContext2D();
-        
         dylanIV.setImage(dylanImg);
         dylanIV.setFitWidth(dImgW);
         // StackPane.clearConstraints(dylanIV);
@@ -50,6 +50,7 @@ public class controller {
         canvas.widthProperty().bind(pane.widthProperty());
         timeline.setCycleCount(Animation.INDEFINITE);
         javafx.application.Platform.runLater(() -> {
+            DGY = canvas.getHeight() - groundHeight - dImgH;
             initGame();
         });
     }
@@ -78,20 +79,40 @@ public class controller {
         }
     }
 
+    public class obstacle {
+        public double x;
+        public double type;
+
+        public obstacle(double x, double type) {
+            this.x = x;
+            this.type = type;
+        }
+
+        @Override
+        public String toString() {
+            return "obstacle{" +
+                    "x=" + x +
+                    ", type=" + type +
+                    '}';
+        }
+    }
+
     ObservableList<groundTex> groundTexList = FXCollections.observableArrayList();
+    ObservableList<obstacle> obstacleList = FXCollections.observableArrayList();
 
     public void initGame() {
         ctx.setFill(Color.hsb(0, 0, 0.6));
         ctx.fillRect(0, canvas.getHeight() - groundHeight, canvas.getWidth(), groundHeight);
         dylanIV.setX(150);
-        dylanIV.setY(canvas.getHeight() - groundHeight - dImgH);
-        dY = canvas.getHeight() - groundHeight;
+        dylanIV.setY(DGY);
+        dY = DGY;
         timeline.play();
     }
 
     public void jump(){
-        if(dY >= canvas.getHeight() - groundHeight){
-            v+= 10;
+        if(dY >= DGY){
+            v = -8;
+            System.out.println("jumpTriggered");
         }
     }
     Timeline timeline = new Timeline(new KeyFrame(Duration.millis(gameSpeed), event -> {
@@ -114,10 +135,14 @@ public class controller {
             }
             groundTexList.removeIf(gt -> gt.x + gt.w <= 0);
 
-            if(dY < canvas.getHeight() - groundHeight){
-                v += 3;
-                dylanIV.setTranslateY(v);  
+            if(dY < DGY){
+                v += 0.5;
             }
+            if(dY >= DGY && v < 0 || dY < DGY){
+                dY += v;  
+            dylanIV.setY(dY);
+            }              
+
         }));
 
 }
