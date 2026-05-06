@@ -16,6 +16,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
@@ -36,6 +38,8 @@ public class controller {
     int gameSpeed = 20;
     double dY = 0;
     Image dylanImg = new Image(getClass().getResource("/com/piggydoom/assets/dylan.png").toExternalForm());
+    Image spriteSheet = new Image(getClass().getResource("/com/piggydoom/assets/sprite.png").toExternalForm());
+    PixelReader spriteReader = spriteSheet.getPixelReader();
     double dImgW = dylanImg.getWidth() / 18;
     double dImgH = dylanImg.getHeight() / 18;
     double v = 0;
@@ -49,6 +53,7 @@ public class controller {
         canvas.heightProperty().bind(pane.heightProperty());
         canvas.widthProperty().bind(pane.widthProperty());
         timeline.setCycleCount(Animation.INDEFINITE);
+        pane.setStyle("-fx-background-color: #336699;");
         javafx.application.Platform.runLater(() -> {
             DGY = canvas.getHeight() - groundHeight - dImgH;
             initGame();
@@ -145,4 +150,22 @@ public class controller {
 
         }));
 
+      
+
+
+        public void drawSprite(){
+            WritableImage sprite = new WritableImage(spriteReader, 446, 0, 33, 71);
+            ImageView spriteIV = new ImageView(sprite);
+            pane.getChildren().add(spriteIV);
+            spriteIV.setX(canvas.getWidth());
+            double spriteIVX = canvas.getWidth();
+            spriteIV.setY(canvas.getHeight() - groundHeight - 71);
+
+              Timeline obstacleTimeline = new Timeline(new KeyFrame(Duration.millis(gameSpeed / 1.3), event -> {
+            
+                spriteIV.setX(spriteIV.getX() - 10);
+        }));
+              obstacleTimeline.setCycleCount(120);
+            obstacleTimeline.play();
+        }
 }

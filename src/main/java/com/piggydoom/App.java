@@ -31,6 +31,11 @@ public class App extends Application {
                 case SPACE:
                     controller.jump();
                     break;
+                case TAB:
+                    controller.drawSprite();
+                    break;
+                case CONTROL:
+                    break;
             }
         });
     }
