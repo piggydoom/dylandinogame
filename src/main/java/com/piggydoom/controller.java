@@ -24,7 +24,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 public class controller {
-    
+
     @FXML
     public Pane pane;
     @FXML
@@ -53,7 +53,8 @@ public class controller {
         canvas.heightProperty().bind(pane.heightProperty());
         canvas.widthProperty().bind(pane.widthProperty());
         timeline.setCycleCount(Animation.INDEFINITE);
-        pane.setStyle("-fx-background-color: #336699;");
+        obstacleTimeline.setCycleCount(Animation.INDEFINITE);
+        pane.setStyle("-fx-background-color: #cccccc;");
         javafx.application.Platform.runLater(() -> {
             DGY = canvas.getHeight() - groundHeight - dImgH;
             initGame();
@@ -112,60 +113,74 @@ public class controller {
         dylanIV.setY(DGY);
         dY = DGY;
         timeline.play();
+        obstacleTimeline.play();
     }
 
-    public void jump(){
-        if(dY >= DGY){
-            v = -8;
-            System.out.println("jumpTriggered");
+    public void jump() {
+        if (dY >= DGY) {
+            v = -10;
         }
     }
+
     Timeline timeline = new Timeline(new KeyFrame(Duration.millis(gameSpeed), event -> {
-           
-            for(groundTex gt : groundTexList ){
-                ctx.setFill(Color.hsb(0, 0, 0.6));
-                ctx.fillRect(gt.x, gt.y - 1, gt.w + 1, gt.h + 2);
-                gt.x -= 10;
-                ctx.setFill(Color.WHITE);
-                ctx.fillRect(gt.x, gt.y, gt.w, gt.h);
-            }
 
-             if (random.nextInt(13) <= 1) {
-                
-                groundTexList.add(new groundTex(canvas.getWidth(),
-                 ThreadLocalRandom.current().nextDouble(canvas.getHeight() - groundHeight, canvas.getHeight() - 1),
-                  ThreadLocalRandom.current().nextDouble(6, 12),
-                    ThreadLocalRandom.current().nextDouble(4, 6)        
-                   ));
-            }
-            groundTexList.removeIf(gt -> gt.x + gt.w <= 0);
-
-            if(dY < DGY){
-                v += 0.5;
-            }
-            if(dY >= DGY && v < 0 || dY < DGY){
-                dY += v;  
-            dylanIV.setY(dY);
-            }              
-
-        }));
-
-      
-
-
-        public void drawSprite(){
-            WritableImage sprite = new WritableImage(spriteReader, 446, 0, 33, 71);
-            ImageView spriteIV = new ImageView(sprite);
-            pane.getChildren().add(spriteIV);
-            spriteIV.setX(canvas.getWidth());
-            double spriteIVX = canvas.getWidth();
-            spriteIV.setY(canvas.getHeight() - groundHeight - 71);
-
-              Timeline obstacleTimeline = new Timeline(new KeyFrame(Duration.millis(gameSpeed / 1.3), event -> {
-            
-                spriteIV.setX(spriteIV.getX() - 10);
-        }));
-              obstacleTimeline.setCycleCount(120);
-            obstacleTimeline.play();
+        for (groundTex gt : groundTexList) {
+            ctx.setFill(Color.hsb(0, 0, 0.6));
+            ctx.fillRect(gt.x, gt.y - 1, gt.w + 1, gt.h + 2);
+            gt.x -= 10;
+            ctx.setFill(Color.WHITE);
+            ctx.fillRect(gt.x, gt.y, gt.w, gt.h);
         }
+
+        if (random.nextInt(13) <= 1) {
+
+            groundTexList.add(new groundTex(canvas.getWidth(),
+                    ThreadLocalRandom.current().nextDouble(canvas.getHeight() - groundHeight, canvas.getHeight() - 1),
+                    ThreadLocalRandom.current().nextDouble(6, 12),
+                    ThreadLocalRandom.current().nextDouble(4, 6)));
+        }
+        groundTexList.removeIf(gt -> gt.x + gt.w <= 0);
+
+        if (dY < DGY) {
+            v += 0.75;
+        }
+
+        if ((dY += v) > DGY) {
+            v = 0;
+            dY = DGY;
+        } else {
+            dY += v;
+        }
+        dylanIV.setY(dY);
+    }));
+
+    Timeline obstacleTimeline = new Timeline(
+            new KeyFrame(Duration.millis(gameSpeed * 2.75 + random.nextInt(1500)), event -> {
+
+                if (random.nextInt(3) == 2) {
+
+                    drawSprite("cactus");
+                }
+
+            }));
+
+    public void drawSprite(String type) {
+        ImageView spriteIV = new ImageView();
+        pane.getChildren().add(spriteIV);
+        switch (type) {
+            case "cactus":
+                WritableImage sprite = new WritableImage(spriteReader, 446, 0, random.nextInt(3) * 33, 71);
+                spriteIV.setImage(sprite);
+                spriteIV.setX(canvas.getWidth());
+                spriteIV.setY(canvas.getHeight() - groundHeight - 71);
+
+                Timeline obstacleMoveTimeline = new Timeline(new KeyFrame(Duration.millis(gameSpeed / 1.2), event -> {
+                    spriteIV.setX(spriteIV.getX() - 10);
+                }));
+                obstacleMoveTimeline.setCycleCount(120);
+                obstacleMoveTimeline.play();
+
+        }
+
+    }
 }

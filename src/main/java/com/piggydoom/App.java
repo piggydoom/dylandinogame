@@ -32,7 +32,7 @@ public class App extends Application {
                     controller.jump();
                     break;
                 case TAB:
-                    controller.drawSprite();
+                    controller.drawSprite("cactus");
                     break;
                 case CONTROL:
                     break;
