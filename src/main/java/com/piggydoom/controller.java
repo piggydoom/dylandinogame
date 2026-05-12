@@ -60,6 +60,8 @@ public class controller {
         javafx.application.Platform.runLater(() -> {
             DGY = canvas.getHeight() - groundHeight - dImgH;
             initGame();
+            obstacleMoveTimeline.setCycleCount(Animation.INDEFINITE);
+            obstacleMoveTimeline.play();
         });
     }
 
@@ -87,29 +89,8 @@ public class controller {
         }
     }
 
-    public class obstacle {
-        public double x;
-        public double type;
-        public double width;
-
-        public obstacle(double x, double type, double width) {
-            this.x = x;
-            this.type = type;
-            this.width = width;
-        }
-
-        @Override
-        public String toString() {
-            return "obstacle{" +
-                    "x=" + x +
-                    ", type=" + type +
-                    ", width=" + width +
-                    '}';
-        }
-    }
-
     ObservableList<groundTex> groundTexList = FXCollections.observableArrayList();
-    ObservableList<obstacle> obstacleList = FXCollections.observableArrayList();
+    ObservableList<ImageView> obstacleList = FXCollections.observableArrayList();
 
     public void initGame() {
         ctx.setFill(Color.hsb(0, 0, 0.6));
@@ -169,45 +150,42 @@ public class controller {
 
             }));
 
+    Timeline obstacleMoveTimeline = new Timeline(new KeyFrame(Duration.millis(gameSpeed / 1.2), event -> {
+        for(ImageView obsIv : obstacleList){
+            obsIv.setX(obsIv.getX() - 10)                           ;;
+        }
+    }
+
+    ));
+
     public void drawSprite(String type) {
-        ImageView spriteIV = new ImageView();
-        pane.getChildren().add(spriteIV);
-        int WiX = 0;
-        int WiY = 0;
-        int WiW = 0;
-        int WiH = 0;
+
+        // int WiX = 0;
+        // int WiY = 0;
+        // int WiW = 0;
+        // int WiH = 0;
         switch (type) {
             case "cactus":
-                WiX = 446;
-                WiY = 0;
-                WiW = 33;
-                WiH = 71;
+                ImageView newIV = new ImageView();
+                WritableImage newWI = new WritableImage(spriteReader, 446, 0, 33, 71);
+                newIV.setX(canvas.getWidth());
+                newIV.setY(canvas.getHeight() - groundHeight - 71);
+                newIV.setImage(newWI);
+
+                pane.getChildren().add(newIV);
+                obstacleList.add(newIV);
+                // obstacleList.add(new WritableImage(spriteReader, 446, 0, 33, 71));
+                // String thidId = String.valueOf(obstacleList.size() + 1);
+                // ImageView thisID = new ImageView();
+                // pane.getChildren().add(thisID);
+                // WritableImage sprite = new WritableImage(spriteReader, 446, 0, 33, 71);
+                // thisID.setImage(sprite);
+                // thisID.setX(canvas.getWidth());
+                // thisID.setY(canvas.getHeight() - groundHeight - 71);
+                // obstacleList.add(new obstacle(String.valueOf(thisID), 446, 0, 33, 71, canvas.getWidth()));
                 break;
-                
+
         }
-
-        WritableImage sprite = new WritableImage(spriteReader, WiX, WiY, WiW, WiH);
-                spriteIV.setImage(sprite);
-                spriteIV.setX(canvas.getWidth());
-                spriteIV.setY(canvas.getHeight() - groundHeight - WiH);
-
-                Timeline obstacleMoveTimeline = new Timeline(new KeyFrame(Duration.millis(gameSpeed / 1.2), event -> {
-                    spriteIV.setX(spriteIV.getX() - 10);
-
-                    if (spriteIV.getX() <= 150 + dImgW) {
-                        Rectangle hitbox = new Rectangle(spriteIV.getX(), canvas.getHeight() - groundHeight - 71, 33, 71);
-                        Circle playerHitbox = new Circle(150, dY, dImgH / 2);
-                        if (hitbox.getBoundsInParent().intersects(playerHitbox.getBoundsInParent())) {
-                            System.out.print("collide");
-                        }
-
-                    }
-
-                }
-
-                ));
-                obstacleMoveTimeline.setCycleCount(120);
-                obstacleMoveTimeline.play();
 
     }
 }

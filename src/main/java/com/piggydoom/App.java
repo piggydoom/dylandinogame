@@ -33,6 +33,7 @@ public class App extends Application {
                     break;
                 case TAB:
                     controller.drawSprite("cactus");
+                    System.out.println(controller.obstacleList.size());
                     break;
                 case CONTROL:
                     break;
