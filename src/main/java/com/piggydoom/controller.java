@@ -46,6 +46,10 @@ public class controller {
     double dImgH = dylanImg.getHeight() / 18;
     double v = 0;
     double DGY;
+    boolean gameStarted = false;
+    boolean inJump = false;
+    long startTimeJT;
+    long endTimeJT;
 
     public void initialize() {
         ctx = canvas.getGraphicsContext2D();
@@ -62,6 +66,7 @@ public class controller {
             initGame();
             obstacleMoveTimeline.setCycleCount(Animation.INDEFINITE);
             obstacleMoveTimeline.play();
+            gameStarted = true;
         });
     }
 
@@ -103,6 +108,7 @@ public class controller {
     }
 
     public void jump() {
+        startTimeJT = System.nanoTime();
         if (dY >= DGY) {
             v = -10;
         }
@@ -134,6 +140,10 @@ public class controller {
         if ((dY += v) > DGY) {
             v = 0;
             dY = DGY;
+            endTimeJT = System.nanoTime();
+            long durationNS = endTimeJT - startTimeJT;
+            double durationMS = durationNS / 1_000_000.0;
+            System.out.println(durationMS);
         } else {
             dY += v;
         }
@@ -141,7 +151,7 @@ public class controller {
     }));
 
     Timeline obstacleTimeline = new Timeline(
-            new KeyFrame(Duration.millis(gameSpeed * 2.5 + random.nextInt(1500)), event -> {
+            new KeyFrame(Duration.millis(gameSpeed * 2.5 + + 650 + random.nextInt(300)), event -> {
 
                 if (random.nextInt(3) == 2) {
 
@@ -151,8 +161,14 @@ public class controller {
             }));
 
     Timeline obstacleMoveTimeline = new Timeline(new KeyFrame(Duration.millis(gameSpeed / 1.2), event -> {
-        for(ImageView obsIv : obstacleList){
-            obsIv.setX(obsIv.getX() - 10)                           ;;
+        for (ImageView obsIv : obstacleList) {
+            obsIv.setX(obsIv.getX() - 10);
+            if (obsIv.getBoundsInParent().intersects(dylanIV.getBoundsInParent())) {
+                if (gameStarted) {
+                    System.out.println("collided");
+                    gameStarted = false;
+                }
+            }
         }
     }
 
@@ -171,18 +187,8 @@ public class controller {
                 newIV.setX(canvas.getWidth());
                 newIV.setY(canvas.getHeight() - groundHeight - 71);
                 newIV.setImage(newWI);
-
                 pane.getChildren().add(newIV);
                 obstacleList.add(newIV);
-                // obstacleList.add(new WritableImage(spriteReader, 446, 0, 33, 71));
-                // String thidId = String.valueOf(obstacleList.size() + 1);
-                // ImageView thisID = new ImageView();
-                // pane.getChildren().add(thisID);
-                // WritableImage sprite = new WritableImage(spriteReader, 446, 0, 33, 71);
-                // thisID.setImage(sprite);
-                // thisID.setX(canvas.getWidth());
-                // thisID.setY(canvas.getHeight() - groundHeight - 71);
-                // obstacleList.add(new obstacle(String.valueOf(thisID), 446, 0, 33, 71, canvas.getWidth()));
                 break;
 
         }
