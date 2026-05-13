@@ -21,7 +21,7 @@ public class App extends Application {
         FXMLLoader loader = new FXMLLoader(App.class.getResource("primary.fxml"));
         Parent root = loader.load();
         controller controller = loader.getController();
-        scene = new Scene(root, 640, 480);
+        scene = new Scene(root, 640, 420);
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
@@ -32,7 +32,7 @@ public class App extends Application {
                     controller.jump();
                     break;
                 case TAB:
-                    controller.drawSprite("cactus");
+                    controller.drawSprite("pteranodon");
                     System.out.println(controller.obstacleList.size());
                     break;
                 case CONTROL:

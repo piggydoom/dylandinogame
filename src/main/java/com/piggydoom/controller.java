@@ -50,6 +50,8 @@ public class controller {
     boolean inJump = false;
     long startTimeJT;
     long endTimeJT;
+    WritableImage pteranodonWingsDown = new WritableImage(spriteReader, 260, 14, 91, 67);
+    WritableImage pteranodonWingsUp = new WritableImage(spriteReader, 352, 2, 91, 59);
 
     public void initialize() {
         ctx = canvas.getGraphicsContext2D();
@@ -59,6 +61,7 @@ public class controller {
         canvas.heightProperty().bind(pane.heightProperty());
         canvas.widthProperty().bind(pane.widthProperty());
         timeline.setCycleCount(Animation.INDEFINITE);
+        animateTimeline.setCycleCount(Animation.INDEFINITE);
         obstacleTimeline.setCycleCount(Animation.INDEFINITE);
         pane.setStyle("-fx-background-color: #cccccc;");
         javafx.application.Platform.runLater(() -> {
@@ -105,6 +108,7 @@ public class controller {
         dY = DGY;
         timeline.play();
         obstacleTimeline.play();
+        animateTimeline.play();
     }
 
     public void jump() {
@@ -156,6 +160,8 @@ public class controller {
                 if (random.nextInt(3) == 2) {
 
                     drawSprite("cactus");
+                } else if(random.nextInt(6) == 2) {
+                    drawSprite("pteranodon");
                 }
 
             }));
@@ -174,22 +180,41 @@ public class controller {
 
     ));
 
+    Timeline animateTimeline = new Timeline(new KeyFrame(Duration.millis(gameSpeed * 10), event -> {
+        for(ImageView sprite : obstacleList){
+            if(sprite.getId() == "pteranodonIV" ){
+                if(sprite.getImage() == pteranodonWingsDown){
+                    sprite.setImage(pteranodonWingsUp);
+                } else{
+                    sprite.setImage(pteranodonWingsDown);
+                }
+            }
+        }
+    }));
+
     public void drawSprite(String type) {
 
-        // int WiX = 0;
-        // int WiY = 0;
-        // int WiW = 0;
-        // int WiH = 0;
         switch (type) {
             case "cactus":
-                ImageView newIV = new ImageView();
-                WritableImage newWI = new WritableImage(spriteReader, 446, 0, 33, 71);
-                newIV.setX(canvas.getWidth());
-                newIV.setY(canvas.getHeight() - groundHeight - 71);
-                newIV.setImage(newWI);
-                pane.getChildren().add(newIV);
-                obstacleList.add(newIV);
+                ImageView cactusIV = new ImageView();
+                cactusIV.setId("cactusIV");
+                WritableImage cactusWI = new WritableImage(spriteReader, 446, 0, 33, 71);
+                cactusIV.setX(canvas.getWidth());
+                cactusIV.setY(canvas.getHeight() - groundHeight - 71);
+                cactusIV.setImage(cactusWI);
+                pane.getChildren().add(cactusIV);
+                obstacleList.add(cactusIV);
                 break;
+
+            case "pteranodon":
+                ImageView pteranodonIV = new ImageView();
+                pteranodonIV.setId("pteranodonIV");
+                
+                pteranodonIV.setX(canvas.getWidth());
+                pteranodonIV.setY(canvas.getHeight() - groundHeight - 67 - dImgH);
+                pteranodonIV.setImage(pteranodonWingsDown);
+                pane.getChildren().add(pteranodonIV);
+                obstacleList.add(pteranodonIV);
 
         }
 
